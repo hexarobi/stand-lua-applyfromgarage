@@ -6,8 +6,8 @@ local SCRIPT_VERSION = "0.1"
 --- Dependencies
 ---
 
-local inspect = require("inspect")
 util.require_natives("3095a")
+util.ensure_package_is_installed("lua/Constructor")
 
 local constructor_lib = require("constructor/constructor_lib")
 local convertors = require("constructor/convertors")
@@ -139,5 +139,5 @@ menus.apply_from_garage:divider("Browse Garage")
 
 menus.about = menu.my_root():list("About", {}, "Information about this script")
 menus.about:readonly("Version", SCRIPT_VERSION)
-menus.about:hyperlink("Github Source", "https://github.com/hexarobi/stand-lua-chatcommander", "View source files on Github")
+menus.about:hyperlink("Github Source", "https://github.com/hexarobi/stand-lua-applyfromgarage", "View source files on Github")
 menus.about:hyperlink("Discord", "https://discord.gg/RF4N7cKz", "Open Discord Server")
