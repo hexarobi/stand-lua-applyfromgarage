@@ -1,6 +1,22 @@
 -- Apply From Garage
 
-local SCRIPT_VERSION = "0.1"
+local SCRIPT_VERSION = "0.2"
+
+---
+--- Auto Updater
+---
+
+local auto_update_config = {
+    source_url="https://raw.githubusercontent.com/hexarobi/stand-lua-applyfromgarage/main/ApplyFromGarage.lua",
+    script_relpath=SCRIPT_RELPATH,
+    project_url="https://github.com/hexarobi/stand-lua-applyfromgarage",
+}
+
+util.ensure_package_is_installed('lua/auto-updater')
+local auto_updater = require('auto-updater')
+if auto_updater == true then
+    auto_updater.run_auto_update(auto_update_config)
+end
 
 ---
 --- Dependencies
@@ -17,9 +33,11 @@ local convertors = require("constructor/convertors")
 ---
 
 local config = {
-    apply_mods=true,
+    apply_all=false,
+    apply_mods=false,
     apply_paint=true,
     apply_wheels=true,
+    apply_lights=true,
 }
 
 local GARAGE_PATH = filesystem.stand_dir().."Vehicles/"
@@ -55,6 +73,9 @@ local function apply_from_file(filepath)
         ext=ext,
     })
     local construct = create_construct_from_vehicle(handle)
+    if config.apply_all then
+        construct.vehicle_attributes = construct_plan.vehicle_attributes
+    end
     if config.apply_mods then
         construct.vehicle_attributes.mods = construct_plan.vehicle_attributes.mods
     end
@@ -63,6 +84,10 @@ local function apply_from_file(filepath)
     end
     if config.apply_wheels then
         construct.vehicle_attributes.wheels = construct_plan.vehicle_attributes.wheels
+    end
+    if config.apply_lights then
+        construct.vehicle_attributes.neon = construct_plan.vehicle_attributes.neon
+        construct.vehicle_attributes.headlights = construct_plan.vehicle_attributes.headlights
     end
     constructor_lib.deserialize_vehicle_attributes(construct)
 end
@@ -126,15 +151,21 @@ end))
 menu.my_root():link(menus.apply_from_garage)
 
 menus.options = menus.apply_from_garage:list("Apply Options", {}, "Configure which options to copy from selected vehicle to current vehicle")
+menus.options:toggle("Apply All", {}, "Apply ALL garage vehicle attributes to current vehicle", function(value)
+    config.apply_all = value
+end, config.apply_all)
 menus.options:toggle("Apply Paint", {}, "Apply garage vehicle paint to current vehicle", function(value)
     config.apply_paint = value
 end, config.apply_paint)
 menus.options:toggle("Apply Mods", {}, "Apply garage vehicle paint to current vehicle", function(value)
     config.apply_mods = value
 end, config.apply_mods)
-menus.options:toggle("Apply Wheels", {}, "Apply garage vehicle paint to current vehicle", function(value)
+menus.options:toggle("Apply Wheels", {}, "Apply garage vehicle wheels to current vehicle", function(value)
     config.apply_wheels = value
 end, config.apply_wheels)
+menus.options:toggle("Apply Lights", {}, "Apply garage vehicle neon and headlights to current vehicle", function(value)
+    config.apply_lights = value
+end, config.apply_lights)
 menus.apply_from_garage:divider("Browse Garage")
 
 menus.about = menu.my_root():list("About", {}, "Information about this script")
